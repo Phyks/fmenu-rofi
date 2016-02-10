@@ -16,6 +16,7 @@ OPTIONS:
    -f      force reloading index [default: false]
    -t      time [default: 5min]
    -u      Just update the index
+   -n      Prevent it from building the index
 EOF
 }
 
@@ -26,8 +27,9 @@ TIME="+5"
 INPUT=$HOME
 EXCLUDE='.*/\..*'
 DRY=false
+BUILD_INDEX=true
 SHIFT=0
-while getopts "ht:fd:o:i:x:u" OPTION
+while getopts "ht:fd:o:i:x:un" OPTION
 do
      case $OPTION in
          h)
@@ -63,6 +65,10 @@ do
              DRY=true
              SHIFT=$((SHIFT + 1))
              ;;
+         n)
+             BUILD_INDEX=false
+             SHIFT=$((SHIFT + 1))
+             ;;
          ?)
              usage
              exit
@@ -78,16 +84,22 @@ function index_files {
     rm "$INDEX.raw"
 }
 
-if [[ ! -a "$INDEX" ]] ||  ( test `find $INDEX -mmin $TIME` ) || ($FORCE)
+if ( $BUILD_INDEX )
 then
-    index_files
+    if [[ ! -a "$INDEX" ]] ||  ( test `find $INDEX -mmin $TIME` ) || ($FORCE)
+    then
+        index_files
+    fi
 fi
 
 if ( ! $DRY )
 then
     if [ -z $@ ]
     then
-        cat "$INDEX"
+        if [[ -a "$INDEX" ]]
+        then
+            cat "$INDEX"
+        fi
     else
         xdg-open $@ > /dev/null &
     fi
