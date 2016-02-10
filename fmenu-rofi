@@ -26,6 +26,7 @@ TIME="+5"
 INPUT=$HOME
 EXCLUDE='.*/\..*'
 DRY=false
+SHIFT=0
 while getopts "ht:fd:o:i:x:u" OPTION
 do
      case $OPTION in
@@ -35,33 +36,41 @@ do
              ;;
          f)
              FORCE=true
+             SHIFT=$((SHIFT + 1))
              ;;
          d)
              DMENU=$OPTARG
+             SHIFT=$((SHIFT + 2))
              ;;
          t)
              TIME=$OPTARG
+             SHIFT=$((SHIFT + 2))
              ;;
          o)
              INDEX=$OPTARG
+             SHIFT=$((SHIFT + 2))
              ;;
          i)
              INPUT=$OPTARG
+             SHIFT=$((SHIFT + 2))
              ;;
          x)
              EXCLUDE=$OPTARG
+             SHIFT=$((SHIFT + 2))
              ;;
          u)
              FORCE=true
              DRY=true
+             SHIFT=$((SHIFT + 1))
              ;;
          ?)
              usage
              exit
              ;;
      esac
-     shift 1
 done
+
+shift $SHIFT
 
 function index_files {
     find "$INPUT" \( ! -regex "$EXCLUDE" \) | sed 's/ /\\ /g' | sort -f > "$INDEX.raw"
