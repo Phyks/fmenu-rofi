@@ -64,7 +64,9 @@ do
 done
 
 function index_files {
-    find "$INPUT" \( ! -regex "$EXCLUDE" \) | sed 's/ /\\ /g' | sort -f > "$INDEX"
+    find "$INPUT" \( ! -regex "$EXCLUDE" \) | sed 's/ /\\ /g' | sort -f > "$INDEX.raw"
+    iconv -f utf-8 -t utf-8 -c "$INDEX.raw" -o "$INDEX"
+    rm "$INDEX.raw"
 }
 
 if [[ ! -a "$INDEX" ]] ||  ( test `find $INDEX -mmin $TIME` ) || ($FORCE)
